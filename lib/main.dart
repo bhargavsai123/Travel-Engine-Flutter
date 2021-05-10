@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'app_screens/welcome.dart';
-import 'constants.dart';
-import "app_screens/login.dart";
+import 'package:travel_engine/app_screens/welcome.dart';
+import 'package:travel_engine/constants.dart';
 
 void main() {
   runApp(
