@@ -1,10 +1,17 @@
+import 'package:bruh_123/app_screens/trips.dart';
+import 'package:bruh_123/components/gap.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import '../constants.dart';
+
+import 'package:bruh_123/components/buttons/icon_button.dart';
+import 'package:bruh_123/components/buttons/rounded_button.dart';
+import 'package:bruh_123/components/custom_input.dart';
+
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:travel_engine/components/buttons/icon_button.dart';
-import 'package:travel_engine/constants.dart';
-import 'package:travel_engine/components/buttons/rounded_button.dart';
-import 'package:travel_engine/components/custom_input.dart';
-import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -12,30 +19,17 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  int _pageState = 0;
+  var email = TextEditingController();
 
-  var _bg = Colors.white;
-  var _tc = kPrimaryColor;
+  var password = TextEditingController();
 
-  double _loginYOffset = 0;
-  double _signupYOffset = 0;
-  bool _keyboardVisible = false;
+  var confirmPassword = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    // Checking for Keyboard Visibility
-    KeyboardVisibilityNotification().addNewListener(
-      onChange: (bool visible) {
-        setState(() {
-          _keyboardVisible = visible;
-          print("$visible");
-        });
-      },
-    );
-  }
+  var number = TextEditingController();
 
-  // Function used to Hide the Keyboard
+  var name = TextEditingController();
+
+  // ignore: unused_element
   void _hideKeyboard() {
     final focus = FocusScope.of(context);
     if (!focus.hasPrimaryFocus) focus.unfocus();
@@ -44,190 +38,50 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    // Switch case used to make changes to the Welcome Screen based on its State
-    switch (_pageState) {
-      case 0:
-        _bg = Colors.white;
-        _tc = kPrimaryColor;
-        _loginYOffset = size.height;
-        _signupYOffset = size.height;
-        _hideKeyboard();
-        break;
-      case 1:
-        _bg = kPrimaryColor;
-        _tc = Colors.white70;
-        // Changing the height of the Modal based on Keyboard Visibility
-        _loginYOffset =
-            _keyboardVisible ? size.height * 0.17 : size.height * 0.57;
-        break;
-      case 2:
-        _bg = kPrimaryColor;
-        _tc = Colors.white70;
-        // Changing the height of the Modal based on Keyboard Visibility
-        _signupYOffset =
-            _keyboardVisible ? size.height * 0.17 : size.height * 0.27;
-        break;
-    }
-
-    return GestureDetector(
-      // Hide Keyboard on Tapping away from a TextField
-      onTap: () {
-        setState(() {
-          _pageState = 0;
-        });
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: <Widget>[
-            AnimatedContainer(
-              // Animation & Duration
-              curve: Curves.fastLinearToSlowEaseIn,
-              duration: Duration(milliseconds: 1000),
-              color: _bg,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    // Title
-                    Text(
-                      "Travel Engine",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30.0,
-                          color: _tc),
-                    ),
-                    // Image
-                    Padding(
-                      padding: EdgeInsets.only(top: 40.0, bottom: 40.0),
-                      child: Image.asset(
-                        "images/welcome.png",
-                      ),
-                    ),
-                    // Login Button
-                    Padding(
-                      padding: EdgeInsets.only(top: 30.0, bottom: 15.0),
-                      child: RoundedButton(
-                        text: "Login",
-                        press: () {
-                          // Changing the State of the Welcome Screen
-                          setState(() {
-                            if (_pageState != 0) {
-                              _pageState = 0;
-                            } else {
-                              _pageState = 1;
-                            }
-                          });
-                        },
-                        color: kPrimaryColor,
-                        textColor: kPrimaryLightColor,
-                        splash: kPrimaryLightColor,
-                      ),
-                    ),
-                    // Sign Up Button
-                    RoundedButton(
-                      text: "Sign Up",
-                      press: () {
-                        setState(() {
-                          if (_pageState != 0) {
-                            _pageState = 0;
-                          } else {
-                            _pageState = 2;
-                          }
-                        });
-                      },
-                      color: kPrimaryLightColor,
-                      textColor: kPrimaryColor,
-                      splash: kAccentColor,
-                    )
-                  ],
-                ),
-              ),
-            ),
-            // Login Modal
-            loginPage(size),
-            // Sign Up Modal
-            signupPage(size),
-          ],
-        ),
-      ),
-    );
-  }
-
-  loginPage(Size size) {
-    return GestureDetector(
-      // Changing the height of the Modal on Vertical Drag Update
-      onVerticalDragUpdate: (DragUpdateDetails dd) {
-        _loginYOffset = dd.localPosition.dy;
-        if (_loginYOffset < size.height * 0.57) {
-          _loginYOffset = size.height * 0.57;
-        } else if (_loginYOffset > size.height * 0.8) {
-          setState(() {
-            _pageState = 0;
-          });
-        }
-        print(_loginYOffset);
-      },
-      onTap: () {
-        _hideKeyboard();
-      },
-      child: AnimatedContainer(
-        // Animation & Duration
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: AnimatedContainer(
+        alignment: Alignment.center,
         curve: Curves.fastLinearToSlowEaseIn,
-        duration: Duration(
-          milliseconds: 1000,
-        ),
-        transform: Matrix4.translationValues(0, _loginYOffset, 10),
-        decoration: BoxDecoration(
-          color: kAccentColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(29.0),
-            topRight: Radius.circular(29.0),
-          ),
-        ),
+        duration: const Duration(milliseconds: 1000),
+        color: Colors.white,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(15.0),
-              child: Container(
-                width: size.width * 0.1,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: kPrimaryColor,
-                  borderRadius: BorderRadius.circular(29.0),
-                ),
-              ),
-            ),
             Text(
-              "Login",
+              "Travel Engine",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 30.0,
-                color: kPrimaryLightColor,
+                color: kPrimaryColor,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 25.0),
-              child: CustomInput(
-                label: "Email Address",
-                icon: Icons.email_rounded,
-                password: false,
+              padding: const EdgeInsets.only(top: 40.0, bottom: 40.0),
+              child: Image.asset(
+                "images/welcome.png",
               ),
             ),
-            CustomInput(
-              label: "Password",
-              icon: Icons.lock,
-              password: true,
-            ),
             Padding(
-              padding: EdgeInsets.only(top: 25.0),
+              padding: const EdgeInsets.only(top: 30.0, bottom: 15.0),
               child: RoundedButton(
                 text: "Login",
-                textColor: kPrimaryLightColor,
-                color: kPrimaryColor,
-                splash: kPrimaryLightColor,
-                press: () {},
+                color: kPrimaryLightColor,
+                textColor: kPrimaryColor,
+                splash: kPrimaryColor,
+                press: () {
+                  buildLoginModal(context, size);
+                },
               ),
+            ),
+            RoundedButton(
+              text: "Sign Up",
+              color: kPrimaryColor,
+              textColor: kPrimaryLightColor,
+              splash: kPrimaryLightColor,
+              press: () {
+                buildSignUpModal(context, size);
+              },
             )
           ],
         ),
@@ -235,49 +89,104 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  signupPage(Size size) {
-    return GestureDetector(
-      // Changing the height of the Modal on Vertical Drag Update
-
-      onVerticalDragUpdate: (DragUpdateDetails dd) {
-        _signupYOffset = dd.localPosition.dy;
-        if (_signupYOffset < size.height * 0.27) {
-          _signupYOffset = size.height * 0.27;
-        } else if (dd.localPosition.dy > size.height * 0.8) {
-          setState(() {
-            _pageState = 0;
-          });
-        }
-        print(_signupYOffset);
-      },
-
-      onTap: () {
-        _hideKeyboard();
-      },
-
-      child: AnimatedContainer(
-        // Animation & Duration
-        curve: Curves.fastLinearToSlowEaseIn,
-        duration: Duration(
-          milliseconds: 1000,
+  Future buildLoginModal(BuildContext context, Size size) {
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      backgroundColor: kPrimaryLightColor,
+      barrierColor: kPrimaryColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0),
         ),
-        transform: Matrix4.translationValues(0, _signupYOffset, 10),
-        decoration: BoxDecoration(
-          color: kAccentColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(29.0),
-            topRight: Radius.circular(29.0),
+      ),
+      elevation: 0.0,
+      builder: (context) => SingleChildScrollView(
+        child: Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Container(
+                  width: size.width * 0.1,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.circular(29.0),
+                  ),
+                ),
+              ),
+              Text(
+                "Login",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30.0,
+                  color: kPrimaryColor,
+                ),
+              ),
+              const Gap(),
+              CustomInput(
+                label: "Email Address",
+                icon: Icons.mail_rounded,
+                password: false,
+                textColor: kPrimaryColor,
+                keyboardType: TextInputType.emailAddress,
+                controller: email,
+              ),
+              CustomInput(
+                label: "Password",
+                icon: Icons.lock_rounded,
+                password: true,
+                textColor: kPrimaryColor,
+                keyboardType: TextInputType.visiblePassword,
+                controller: password,
+              ),
+              const Gap(),
+              RoundedButton(
+                text: "Login",
+                textColor: kPrimaryLightColor,
+                color: kPrimaryColor,
+                splash: kPrimaryLightColor,
+                press: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TripsScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Gap(),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<dynamic> buildSignUpModal(BuildContext context, Size size) {
+    return showMaterialModalBottomSheet<dynamic>(
+      context: context,
+      backgroundColor: kPrimaryColor,
+      barrierColor: kPrimaryLightColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0),
+        ),
+      ),
+      builder: (context) => SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15.0),
               child: Container(
                 width: size.width * 0.1,
-                height: 6,
+                height: 5,
                 decoration: BoxDecoration(
-                  color: kPrimaryColor,
+                  color: kPrimaryLightColor,
                   borderRadius: BorderRadius.circular(29.0),
                 ),
               ),
@@ -290,58 +199,72 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 color: kPrimaryLightColor,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25.0),
-              child: CustomInput(
-                label: "Email Address",
-                icon: Icons.email_rounded,
-                password: false,
-              ),
-            ),
+            const Gap(),
             CustomInput(
-              label: "Password",
-              icon: Icons.lock,
-              password: true,
+              label: "Email Address",
+              icon: Icons.mail_rounded,
+              password: false,
+              textColor: kPrimaryLightColor,
+              keyboardType: TextInputType.emailAddress,
+              controller: email,
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 25.0),
-              child: RoundedButton(
-                text: "Sign up",
-                textColor: kPrimaryLightColor,
-                color: kPrimaryColor,
-                splash: kPrimaryLightColor,
-                press: () {},
-              ),
+            const Gap(),
+            RoundedButton(
+              text: "Create Account",
+              color: kPrimaryLightColor,
+              textColor: kPrimaryColor,
+              splash: kPrimaryColor,
+              press: () {
+                buildUserDetailsModal(context, size);
+              },
             ),
+            const Gap(),
             Padding(
-              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+              padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Padding(
-                    padding: EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Container(
                       width: size.width * 0.35,
                       height: 2,
                       decoration: BoxDecoration(
-                        color: kPrimaryColor,
+                        color: kPrimaryLightColor,
                         borderRadius: BorderRadius.circular(29.0),
                       ),
                     ),
                   ),
-                  Text("OR"),
+                  Text(
+                    "OR",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryLightColor,
+                    ),
+                  ),
                   Padding(
-                    padding: EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Container(
                       width: size.width * 0.35,
                       height: 2,
                       decoration: BoxDecoration(
-                        color: kPrimaryColor,
+                        color: kPrimaryLightColor,
                         borderRadius: BorderRadius.circular(29.0),
                       ),
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                "Sign Up With",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: kPrimaryLightColor,
+                ),
               ),
             ),
             Row(
@@ -356,7 +279,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
                 Padding(padding: EdgeInsets.all(size.width * 0.02)),
                 CustomIconButton(
-                  color: Colors.grey[100],
+                  color: Colors.grey[300],
                   icon: FontAwesomeIcons.apple,
                   iconColor: Colors.black45,
                   splash: Colors.black45,
@@ -368,7 +291,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CustomIconButton(
-                  color: Colors.blueAccent[100],
+                  color: Colors.white,
                   icon: FontAwesomeIcons.facebook,
                   iconColor: Colors.blueAccent,
                   splash: Colors.blueAccent,
@@ -377,16 +300,111 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Padding(padding: EdgeInsets.all(size.width * 0.02)),
                 CustomIconButton(
                   color: Colors.lightBlueAccent[200],
-                  icon: Icons.mail,
+                  icon: Icons.mark_email_unread_rounded,
                   iconColor: Colors.white,
                   splash: Colors.white,
                   press: () {},
                 ),
               ],
-            )
+            ),
+            const Gap(),
           ],
         ),
       ),
     );
+  }
+
+  Future<dynamic> buildUserDetailsModal(BuildContext context, Size size) {
+    return showMaterialModalBottomSheet<dynamic>(
+        animationCurve: Curves.fastLinearToSlowEaseIn,
+        duration: const Duration(milliseconds: 500),
+        context: context,
+        backgroundColor: kPrimaryLightColor,
+        barrierColor: kPrimaryColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25.0),
+          ),
+        ),
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      width: size.width * 0.1,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: kPrimaryColor,
+                        borderRadius: BorderRadius.circular(29.0),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "User Details",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 27.5,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                  const Gap(),
+                  CustomInput(
+                    label: "Name",
+                    password: false,
+                    icon: Icons.account_circle_rounded,
+                    textColor: kPrimaryColor,
+                    keyboardType: TextInputType.name,
+                    controller: name,
+                  ),
+                  CustomInput(
+                    label: "Contact Number",
+                    icon: Icons.phone_rounded,
+                    password: false,
+                    textColor: kPrimaryColor,
+                    keyboardType: TextInputType.number,
+                    controller: number,
+                  ),
+                  CustomInput(
+                    label: "Password",
+                    icon: Icons.lock_outline_rounded,
+                    password: true,
+                    textColor: kPrimaryColor,
+                    keyboardType: TextInputType.visiblePassword,
+                    controller: password,
+                  ),
+                  CustomInput(
+                    label: "Confirm Password",
+                    icon: Icons.lock_rounded,
+                    password: true,
+                    textColor: kPrimaryColor,
+                    keyboardType: TextInputType.visiblePassword,
+                    controller: confirmPassword,
+                  ),
+                  const Gap(),
+                  RoundedButton(
+                    text: "Sign Up",
+                    textColor: kPrimaryLightColor,
+                    splash: kPrimaryLightColor,
+                    color: kPrimaryColor,
+                    press: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TripsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const Gap(),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

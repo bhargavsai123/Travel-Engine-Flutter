@@ -1,42 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:travel_engine/constants.dart';
 
 class CustomInput extends StatelessWidget {
   final String label;
+  // ignore: prefer_typing_uninitialized_variables
   final icon;
   final bool password;
+  final Color textColor;
+  final TextInputType keyboardType;
+  final TextEditingController controller;
   const CustomInput({
-    Key key,
-    this.label,
-    this.icon,
-    this.password,
+    Key? key,
+    required this.label,
+    required this.icon,
+    required this.password,
+    required this.textColor,
+    required this.keyboardType,
+    required this.controller,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-      child: Container(
-        width: size.width * 0.84,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(29.0),
-          color: kPrimaryLightColor,
-        ),
-        child: TextFormField(
-          obscureText: password,
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon),
-            labelText: label,
-            labelStyle: TextStyle(
-              color: kPrimaryColor,
-              fontWeight: FontWeight.bold,
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: 0.8,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(29.0),
             ),
-            // ignore: deprecated_member_use
-            hasFloatingPlaceholder: true,
-            disabledBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
+            child: TextFormField(
+              controller: controller,
+              autocorrect: false,
+              obscureText: password,
+              keyboardType: keyboardType,
+              style: TextStyle(
+                color: textColor,
+              ),
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  icon,
+                  color: textColor,
+                ),
+                labelText: label,
+                labelStyle: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: textColor,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: textColor,
+                  ),
+                ),
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
+              ),
+            ),
           ),
         ),
       ),
